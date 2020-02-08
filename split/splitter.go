@@ -67,14 +67,14 @@ func min(a, b int) int {
 }
 
 func Run(tilemap Tilemap, chunkHeight, chunkWidth int) ([]Tilemap, error) {
-	logrus.Infof("tilemap widthInTiles: %d, heightInTiles: %d", tilemap.WidthInTiles, tilemap.HeightInTiles)
+	logrus.Debugf("tilemap widthInTiles: %d, heightInTiles: %d", tilemap.WidthInTiles, tilemap.HeightInTiles)
 	widthInTilemaps := int(math.Ceil(math.Max(float64(tilemap.WidthInTiles)/float64(chunkHeight), 1.0)))
 	heightInTilemaps := int(math.Ceil(math.Max(float64(tilemap.HeightInTiles)/float64(chunkWidth), 1.0)))
-	logrus.Infof("widthInTilemaps: %d, heightInTilemaps: %d", widthInTilemaps, heightInTilemaps)
+	logrus.Debugf("widthInTilemaps: %d, heightInTilemaps: %d", widthInTilemaps, heightInTilemaps)
 
 	ntilemaps := int(math.Ceil(float64(widthInTilemaps) * float64(heightInTilemaps)))
 	nlayers := countLayerType(tilemap, TileLayer)
-	logrus.Printf("creating %d tilemap(s) with %d layer(s) each", ntilemaps, nlayers)
+	logrus.Debugf("creating %d tilemap(s) with %d layer(s) each", ntilemaps, nlayers)
 
 	var decodedLayerData [][]uint32
 	for _, layer := range tilemap.Layers {
@@ -82,13 +82,13 @@ func Run(tilemap Tilemap, chunkHeight, chunkWidth int) ([]Tilemap, error) {
 			continue
 		}
 
-		logrus.Infof("adding layer: %v , %v", layer.Name, layer.Type)
+		logrus.Debugf("adding layer: %v , %v", layer.Name, layer.Type)
 		data, err := decodeLayerData(layer.Data)
 		if err != nil {
 			return nil, fmt.Errorf("failed to decode layer data: %w", err)
 		}
 
-		logrus.Infof("decoded %d gids", len(data))
+		logrus.Debugf("decoded %d gids", len(data))
 		decodedLayerData = append(decodedLayerData, data)
 	}
 
@@ -110,7 +110,7 @@ func Run(tilemap Tilemap, chunkHeight, chunkWidth int) ([]Tilemap, error) {
 		top := (chunkIndex / widthInTilemaps) * chunkHeight
 		tm.WidthInTiles = min(chunkWidth, tilemap.WidthInTiles-left)
 		tm.HeightInTiles = min(chunkHeight, tilemap.HeightInTiles-top)
-		logrus.Infof("tilemap %d: %d,%d (%dx%d)", chunkIndex, left, top, tm.WidthInTiles, tm.HeightInTiles)
+		logrus.Debugf("tilemap %d: %d,%d (%dx%d)", chunkIndex, left, top, tm.WidthInTiles, tm.HeightInTiles)
 
 		chunkoffset := tilemap.WidthInTiles*top + left
 

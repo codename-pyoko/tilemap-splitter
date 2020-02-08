@@ -11,6 +11,7 @@ import (
 
 	"github.com/codename-pyoko/tilemap-splitter/format"
 	"github.com/codename-pyoko/tilemap-splitter/split"
+	"github.com/joho/godotenv"
 	"github.com/sirupsen/logrus"
 )
 
@@ -34,10 +35,9 @@ func saveTilemaps(tilemaps []split.Tilemap) error {
 		if err := encoder.Encode(&tm); err != nil {
 			logrus.Fatalf("failed to encode tilemap: %v", err)
 		}
-		logrus.Infof("saved tilemap to %s", f.Name())
+		logrus.Debugf("saved tilemap to %s", f.Name())
 	}
 
-	logrus.Infof("saved %d tilemaps", len(tilemaps))
 	return nil
 }
 
@@ -53,11 +53,20 @@ func saveMasterFile(master split.MasterFile) error {
 		return fmt.Errorf("failed to format master file: %w", err)
 	}
 
-	logrus.Infof("saved masterfile to %s", f.Name())
+	logrus.Debugf("saved masterfile to %s", f.Name())
 	return nil
 }
 
 func main() {
+
+	if err := godotenv.Load(); err != nil && !os.IsNotExist(err) {
+		logrus.Fatalf("failed to load env: %v", err)
+	}
+
+	if l, err := logrus.ParseLevel(os.Getenv("LOG_LEVEL")); err == nil {
+		logrus.SetLevel(l)
+	}
+
 	tiledJSON := flag.String("json", "", "Tiled JSON tilemap")
 	tiledXML := flag.String("tmx", "", "Tiled TMX (xml) tilemap")
 
@@ -127,10 +136,11 @@ func main() {
 	if err := saveMasterFile(master); err != nil {
 		logrus.Fatalf("failed to save master file: %v", err)
 	}
+	logrus.Infof("master file saved to '%s'", masterFile)
 
 	if err := saveTilemaps(tilemaps); err != nil {
 		logrus.Fatalf("failed to save tilemaps: %v", err)
 	}
 
-	logrus.Infof("tilemap successfully split into %d chunks", len(tilemaps))
+	logrus.Infof("tilemap split to %d chunks and saved to pattern '%s'", len(tilemaps), outputFmt)
 }
