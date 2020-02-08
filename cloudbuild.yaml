@@ -1,0 +1,7 @@
+steps:
+- name: gcr.io/cloud-builders/go
+  args: ['build']
+  env:
+    - GOPATH=/go
+    - GO111MODULE=on
+    - GOPROXY=https://proxy.golang.org
