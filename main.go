@@ -113,8 +113,6 @@ func main() {
 		logrus.Fatalf("failed to parse tilemap: %v", err)
 	}
 
-	logrus.Infof("objectgroup: %+v", tilemap.XMLObjectGroup)
-
 	tilemaps, err := split.Run(tilemap, chunkWidth, chunkHeight)
 	if err != nil {
 		logrus.Fatalf("failed to split map: %v", err)
