@@ -197,6 +197,7 @@ func (p *Property) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 		Name  string       `xml:"name,attr"`
 		Type  PropertyType `xml:"type,attr"`
 		Value string       `xml:"value,attr"`
+		Inner string       `xml:",innerxml"`
 	}{}
 
 	if err := d.DecodeElement(&buf, &start); err != nil {
@@ -213,6 +214,9 @@ func (p *Property) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 	case PropertyTypeString:
 		p.Type = "string"
 		p.Value = buf.Value
+		if p.Value == "" {
+			p.Value = buf.Inner
+		}
 
 	case PropertyTypeColor:
 		p.Value = buf.Value
