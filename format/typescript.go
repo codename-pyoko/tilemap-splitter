@@ -10,11 +10,12 @@ import (
 )
 
 var TypescriptTemplate = `
-{{- range $i, $e := .Tilesets -}}
-import s{{$i}} from '../../static/{{ $e.SpritesheetURL }}';
-{{- end -}}
-{{ range $i, $e := .Tilemaps }}
+{{- range $i, $e := .Tilemaps -}}
 import t{{$i}} from '../../static/{{ $e.URL }}';
+{{ end -}}
+
+{{ range $i, $e := .Tilesets -}}
+import s{{$i}} from '../../static/{{ $e.SpritesheetURL }}';
 {{- end }}
 
 const map = {
