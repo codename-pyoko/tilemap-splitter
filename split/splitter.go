@@ -82,7 +82,7 @@ func Run(tilemap Tilemap, chunkHeight, chunkWidth int) ([]Tilemap, error) {
 			continue
 		}
 
-		logrus.Debugf("adding layer: %v , %v", layer.Name, layer.Type)
+		logrus.Debugf("adding layer: %v, %v", layer.Name, layer.Type)
 		data, err := decodeLayerData(layer.Data)
 		if err != nil {
 			return nil, fmt.Errorf("failed to decode layer data: %w", err)
@@ -118,8 +118,8 @@ func Run(tilemap Tilemap, chunkHeight, chunkWidth int) ([]Tilemap, error) {
 
 			var ll []uint32
 
-			for itop := 0; itop < chunkHeight; itop++ {
-				begin := chunkoffset + itop*tilemap.WidthInTiles
+			for itop := 0; itop < tm.HeightInTiles; itop++ {
+				begin := chunkoffset + itop*tm.WidthInTiles
 				end := begin + tm.WidthInTiles
 				ll = append(ll, layerData[begin:end]...)
 			}
