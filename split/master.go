@@ -23,7 +23,13 @@ type MasterTileset struct {
 	TilesetKey     string `json:"tilesetKey"`
 }
 
+type Spawn struct {
+	X int `json:"x"`
+	Y int `json:"y"`
+}
+
 type MasterFile struct {
+	Spawn    Spawn                `json:"spawn"`
 	Tilesets []MasterTileset      `json:"tilesets"`
 	Tilemaps []MasterTilemapEntry `json:"tilemaps"`
 }
@@ -40,6 +46,7 @@ func ContainsTileset(tilesets []MasterTileset, spritesheetKey string) bool {
 func CreateMasterFile(tilemaps []Tilemap, sourceFileBase string, nChunksWidth int) (MasterFile, error) {
 	var mtilesets []MasterTileset
 	var mtilemaps []MasterTilemapEntry
+	var spawn Spawn
 	for tmindex, tm := range tilemaps {
 		for _, ts := range tm.Tilesets {
 			spritesheetKey := fmt.Sprintf("spritesheet-%s", ts.Name)
@@ -68,10 +75,27 @@ func CreateMasterFile(tilemaps []Tilemap, sourceFileBase string, nChunksWidth in
 			TileY:         tmindex / nChunksWidth * tm.HeightInTiles,
 		}
 
+		for _, l := range tm.Layers {
+			if l.Type != ObjectGroup {
+				continue
+			}
+
+			for _, o := range l.Objects {
+				if o.Type != "spawn" {
+					continue
+				}
+				if spawn.X == 0 && spawn.Y == 0 || o.Properties.HasProperty("type", "primary") {
+					spawn.X = mtm.TileX*tm.TileWidth + int(o.X)
+					spawn.Y = mtm.TileY*tm.TileHeight + int(o.Y)
+				}
+			}
+		}
+
 		mtilemaps = append(mtilemaps, mtm)
 	}
 
 	return MasterFile{
+		Spawn:    spawn,
 		Tilesets: mtilesets,
 		Tilemaps: mtilemaps,
 	}, nil

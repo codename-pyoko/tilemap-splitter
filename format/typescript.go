@@ -19,6 +19,7 @@ import s{{$i}} from '../../static/{{ $e.SpritesheetURL }}';
 {{- end }}
 
 const map = {
+    spawn: { x: {{.Spawn.X}}, y: {{.Spawn.Y}} },
     tilemaps: [
         {{- range $i, $e := .Tilemaps }}
         {

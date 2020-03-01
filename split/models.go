@@ -45,7 +45,7 @@ type Object struct {
 	Point      bool       `json:"point,omitempty" xml:"point,attr"`
 	Polygon    []Point    `json:"polygon,omitempty" xml:"polygon"`
 	Polyline   []Point    `json:"polyline,omitempty" xml:"polyline"`
-	Properties []Property `json:"properties,omitempty" xml:"properties>property"`
+	Properties Properties `json:"properties,omitempty" xml:"properties>property"`
 	Rotation   float64    `json:"rotation,omitempty"`
 	Template   string     `json:"template,omitempty"`
 	Text       string     `json:"text,omitempty"`
@@ -91,6 +91,8 @@ type Property struct {
 	Value interface{}  `json:"value,omitempty" xml:"value,attr"`
 }
 
+type Properties []Property
+
 type PropertyValue struct{}
 
 type Grid struct {
@@ -101,7 +103,7 @@ type Grid struct {
 
 type Terrain struct {
 	Name       string     `json:"name" xml:"name,attr"`
-	Properties []Property `json:"properties,omitempty" xml:"properties,attr"`
+	Properties Properties `json:"properties,omitempty" xml:"properties,attr"`
 	Tile       int        `json:"tile" xml:"tile,attr"`
 }
 
@@ -147,7 +149,7 @@ type XMLObjectGroup struct {
 	OffsetY   float64   `xml:"offsety,attr"`
 	DrawOrder DrawOrder `xml:"draworder,attr"`
 
-	Properties []Property `xml:"property"`
+	Properties Properties `xml:"property"`
 	Objects    []Object   `xml:"object"`
 }
 
@@ -166,7 +168,7 @@ type Layer struct {
 	OffsetX          float64     `json:"offsetx,omitempty" xml:"offsetx,attr"`
 	OffsetY          float64     `json:"offsety,omitempty" xml:"offsety,attr"`
 	Opacity          float64     `json:"opacity,omitempty" xml:"opacity,attr"`
-	Properties       []Property  `json:"properties,omitempty" xml:"properties>property"`
+	Properties       Properties  `json:"properties,omitempty" xml:"properties>property"`
 	StartX           int         `json:"startx,omitempty"`
 	StartY           int         `json:"starty,omitempty"`
 	TransparentColor string      `json:"transparentcolor,omitempty"`
@@ -187,7 +189,7 @@ type Tile struct {
 	ImageWidth  int         `json:"imagewidth,omitempty"`
 	ObjectGroup Layer       `json:"objectgroup,omitempty"`
 	Probability float64     `json:"probability,omitempty"`
-	Properties  []Property  `json:"properties,omitempty" xml:"properties>property"`
+	Properties  Properties  `json:"properties,omitempty" xml:"properties>property"`
 	Terrain     TileTerrain `json:"terrain,omitempty" xml:"terrain,attr"`
 	Tile        int         `json:"tile,omitempty"`
 }
@@ -203,7 +205,7 @@ type Tileset struct {
 	ImageWidth       int         `json:"imagewidth,omitempty"`
 	Margin           int         `json:"margin,omitempty" xml:"margin"`
 	Name             string      `json:"name,omitempty" xml:"name,attr"`
-	Properties       []Property  `json:"properties,omitempty" xml:"properties>property"`
+	Properties       Properties  `json:"properties,omitempty" xml:"properties>property"`
 	Source           string      `json:"source,omitempty" xml:"source,attr"`
 	Spacing          int         `json:"spacing,omitempty" xml:"spacing,attr"`
 	Terrains         []Terrain   `json:"terrains,omitempty" xml:"terraintypes>terrain"`
@@ -230,11 +232,21 @@ type Tilemap struct {
 	NextLayerID    int         `json:"nextlayerid,omitempty" xml:"nextlayerid,attr"`
 	NextObjectID   int         `json:"nextobjectid,omitempty" xml:"nextobjectid,attr"`
 	Orientation    Orientation `json:"orientation,omitempty" xml:"orientation,attr"`
-	Properties     []Property  `json:"properties,omitempty" xml:"properties>property"`
+	Properties     Properties  `json:"properties,omitempty" xml:"properties>property"`
 	RenderOrder    RenderOrder `json:"renderorder,omitempty" xml:"renderorder,attr"`
 	StaggerAxis    string      `json:"staggeraxis,omitempty" xml:"staggeraxis,attr"`
 	StaggerIndex   string      `json:"staggerindex,omitempty" xml:"staggerindex,attr"`
 	TiledVersion   string      `json:"tiledversion,omitempty" xml:"tiledversion,attr"`
 	Tilesets       []Tileset   `json:"tilesets,omitempty" xml:"tileset"`
 	Version        float64     `json:"version,omitempty" xml:"version,attr"`
+}
+
+func (props Properties) HasProperty(name, value string) bool {
+	for _, p := range props {
+		if p.Name == name && p.Value == value {
+			return true
+		}
+	}
+
+	return false
 }
