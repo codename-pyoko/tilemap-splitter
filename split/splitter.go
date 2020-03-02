@@ -119,7 +119,7 @@ func Run(tilemap Tilemap, chunkHeight, chunkWidth int) ([]Tilemap, error) {
 			var ll []uint32
 
 			for itop := 0; itop < tm.HeightInTiles; itop++ {
-				begin := chunkoffset + itop*tm.WidthInTiles
+				begin := chunkoffset + itop*tilemap.WidthInTiles
 				end := begin + tm.WidthInTiles
 				ll = append(ll, layerData[begin:end]...)
 			}
