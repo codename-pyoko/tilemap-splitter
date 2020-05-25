@@ -1,12 +1,9 @@
-// Package format formats a tilemap to an output format
-package format
+package tmsplit
 
 import (
 	"fmt"
 	"io"
 	"text/template"
-
-	"github.com/codename-pyoko/tilemap-splitter/split"
 )
 
 var TypescriptTemplate = `
@@ -48,7 +45,7 @@ const map = {
 export { map };
 `
 
-func FormatTypescript(w io.Writer, master split.MasterFile) error {
+func FormatTypescript(w io.Writer, master MasterFile) error {
 	templ, err := template.New("").Parse(TypescriptTemplate)
 	if err != nil {
 		return fmt.Errorf("failed to parse template: %w", err)

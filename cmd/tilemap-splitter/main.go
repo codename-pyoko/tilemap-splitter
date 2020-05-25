@@ -9,17 +9,16 @@ import (
 	"path"
 	"strings"
 
-	"github.com/codename-pyoko/tilemap-splitter/format"
-	"github.com/codename-pyoko/tilemap-splitter/split"
-	"github.com/joho/godotenv"
+	"github.com/codename-pyoko/tmsplit"
 	"github.com/sirupsen/logrus"
 )
 
 var outputFmt string
 var masterFile string
 var pretty bool
+var logLevel string
 
-func saveTilemaps(tilemaps []split.Tilemap) error {
+func saveTilemaps(tilemaps []tmsplit.Tilemap) error {
 	for index, tm := range tilemaps {
 		f, err := os.Create(fmt.Sprintf(outputFmt, index))
 		if err != nil {
@@ -41,7 +40,7 @@ func saveTilemaps(tilemaps []split.Tilemap) error {
 	return nil
 }
 
-func saveMasterFile(master split.MasterFile) error {
+func saveMasterFile(master tmsplit.MasterFile) error {
 	f, err := os.Create(masterFile)
 	if err != nil {
 		return fmt.Errorf("failed to open master file: %w", err)
@@ -49,7 +48,7 @@ func saveMasterFile(master split.MasterFile) error {
 
 	defer f.Close()
 
-	if err := format.FormatTypescript(f, master); err != nil {
+	if err := tmsplit.FormatTypescript(f, master); err != nil {
 		return fmt.Errorf("failed to format master file: %w", err)
 	}
 
@@ -58,15 +57,6 @@ func saveMasterFile(master split.MasterFile) error {
 }
 
 func main() {
-
-	if err := godotenv.Load(); err != nil && !os.IsNotExist(err) {
-		logrus.Fatalf("failed to load env: %v", err)
-	}
-
-	if l, err := logrus.ParseLevel(os.Getenv("LOG_LEVEL")); err == nil {
-		logrus.SetLevel(l)
-	}
-
 	tiledJSON := flag.String("json", "", "Tiled JSON tilemap")
 	tiledXML := flag.String("tmx", "", "Tiled TMX (xml) tilemap")
 
@@ -93,13 +83,13 @@ func main() {
 	}
 
 	var sourceFile string
-	var parser split.TilemapDecoder
+	var parser tmsplit.TilemapDecoder
 	if *tiledJSON != "" {
 		sourceFile = *tiledJSON
-		parser = split.ParseJSON
+		parser = tmsplit.ParseJSON
 	} else if *tiledXML != "" {
 		sourceFile = *tiledXML
-		parser = split.ParseXML
+		parser = tmsplit.ParseXML
 	}
 
 	sourceNoExt := strings.TrimSuffix(sourceFile, path.Ext(sourceFile))
@@ -122,13 +112,13 @@ func main() {
 		logrus.Fatalf("failed to parse tilemap: %v", err)
 	}
 
-	tilemaps, err := split.Run(tilemap, chunkWidth, chunkHeight)
+	tilemaps, err := tmsplit.Split(tilemap, chunkWidth, chunkHeight)
 	if err != nil {
 		logrus.Fatalf("failed to split map: %v", err)
 	}
 
 	widthInTilemaps := int(math.Ceil(math.Max(float64(tilemap.WidthInTiles)/float64(chunkHeight), 1.0)))
-	master, err := split.CreateMasterFile(tilemaps, path.Base(sourceFile), widthInTilemaps)
+	master, err := tmsplit.CreateMasterFile(tilemaps, path.Base(sourceFile), widthInTilemaps)
 	if err != nil {
 		logrus.Fatalf("failed to create master file: %v", err)
 	}

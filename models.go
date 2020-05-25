@@ -1,4 +1,4 @@
-package split
+package tmsplit
 
 type Compression string
 

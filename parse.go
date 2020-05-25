@@ -1,6 +1,7 @@
-package split
+package tmsplit
 
 import (
+	"encoding/json"
 	"encoding/xml"
 	"fmt"
 	"io"
@@ -10,6 +11,29 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+type TilemapDecoder = func(io.Reader) (Tilemap, error)
+
+func ParseJSON(r io.Reader) (Tilemap, error) {
+	tilemap := Tilemap{}
+	if err := json.NewDecoder(r).Decode(&tilemap); err != nil {
+		return Tilemap{}, fmt.Errorf("failed to json decode: %w", err)
+	}
+
+	return tilemap, nil
+}
+
+func ParseXML(r io.Reader) (Tilemap, error) {
+	tilemap := Tilemap{}
+	if err := xml.NewDecoder(r).Decode(&tilemap); err != nil {
+		return Tilemap{}, fmt.Errorf("failed to xml decode: %w", err)
+	}
+
+	fixTilesets(&tilemap)
+	fixLayers(&tilemap)
+
+	return tilemap, nil
+}
+
 func fixTilesets(tm *Tilemap) {
 	for tsindex := range tm.Tilesets {
 		ts := &tm.Tilesets[tsindex]
@@ -17,18 +41,6 @@ func fixTilesets(tm *Tilemap) {
 		ts.ImageHeight = ts.ImageXML.Height
 		ts.ImageWidth = ts.ImageXML.Width
 		ts.ImageXML = XMLImage{}
-
-		// ts.Terrains = ts.XMLTerrains.Terrain
-		// ts.XMLTerrains = TerrainTypes{}
-
-		// for tindex, tile := range ts.Tiles {
-		// ts.Tiles[tindex].Properties = tile.XMLProperties.Properties
-		// ts.Tiles[tindex].XMLProperties = Properties{}
-
-		// ts.Tiles[tindex].Animation = tile.XMLAnimation.Frames
-		// ts.Tiles[tindex].XMLAnimation = Animations{}
-		// }
-
 	}
 }
 
@@ -80,18 +92,6 @@ func fixLayers(tm *Tilemap) {
 	}
 }
 
-func ParseXML(r io.Reader) (Tilemap, error) {
-	tilemap := Tilemap{}
-	if err := xml.NewDecoder(r).Decode(&tilemap); err != nil {
-		return Tilemap{}, fmt.Errorf("failed to xml decode: %w", err)
-	}
-
-	fixTilesets(&tilemap)
-	fixLayers(&tilemap)
-
-	return tilemap, nil
-}
-
 func parsePointList(l string) []Point {
 	var points []Point
 	for _, p := range strings.Split(l, " ") {
@@ -105,7 +105,6 @@ func parsePointList(l string) []Point {
 			logrus.Warnf("failed to parse point '%s' as float, will skip: %v", p, err)
 		}
 		points = append(points, Point{X: x, Y: y})
-
 	}
 	return points
 }

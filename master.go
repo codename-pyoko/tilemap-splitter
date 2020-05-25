@@ -1,4 +1,4 @@
-package split
+package tmsplit
 
 import (
 	"fmt"
@@ -34,7 +34,7 @@ type MasterFile struct {
 	Tilemaps []MasterTilemapEntry `json:"tilemaps"`
 }
 
-func ContainsTileset(tilesets []MasterTileset, spritesheetKey string) bool {
+func containsTileset(tilesets []MasterTileset, spritesheetKey string) bool {
 	for _, ts := range tilesets {
 		if ts.SpritesheetKey == spritesheetKey {
 			return true
@@ -50,7 +50,7 @@ func CreateMasterFile(tilemaps []Tilemap, sourceFileBase string, nChunksWidth in
 	for tmindex, tm := range tilemaps {
 		for _, ts := range tm.Tilesets {
 			spritesheetKey := fmt.Sprintf("spritesheet-%s", ts.Name)
-			if ContainsTileset(mtilesets, spritesheetKey) {
+			if containsTileset(mtilesets, spritesheetKey) {
 				continue
 			}
 

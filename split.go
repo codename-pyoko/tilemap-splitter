@@ -1,5 +1,5 @@
-// Package split can split tilemaps
-package split
+// Package tmsplit can split tilemaps
+package tmsplit
 
 import (
 	"bytes"
@@ -66,7 +66,7 @@ func min(a, b int) int {
 	return b
 }
 
-func Run(tilemap Tilemap, chunkHeight, chunkWidth int) ([]Tilemap, error) {
+func Split(tilemap Tilemap, chunkHeight, chunkWidth int) ([]Tilemap, error) {
 	logrus.Debugf("tilemap widthInTiles: %d, heightInTiles: %d", tilemap.WidthInTiles, tilemap.HeightInTiles)
 	widthInTilemaps := int(math.Ceil(math.Max(float64(tilemap.WidthInTiles)/float64(chunkHeight), 1.0)))
 	heightInTilemaps := int(math.Ceil(math.Max(float64(tilemap.HeightInTiles)/float64(chunkWidth), 1.0)))
@@ -95,7 +95,6 @@ func Run(tilemap Tilemap, chunkHeight, chunkWidth int) ([]Tilemap, error) {
 	var chunkedTilemaps []Tilemap
 
 	for chunkIndex := 0; chunkIndex < ntilemaps; chunkIndex++ {
-
 		buf := bytes.Buffer{}
 		if err := json.NewEncoder(&buf).Encode(&tilemap); err != nil {
 			return nil, fmt.Errorf("failed to encoder original tilemap to json: %w", err)
@@ -115,7 +114,6 @@ func Run(tilemap Tilemap, chunkHeight, chunkWidth int) ([]Tilemap, error) {
 		chunkoffset := tilemap.WidthInTiles*top + left
 
 		for layerIndex, layerData := range decodedLayerData {
-
 			var ll []uint32
 
 			for itop := 0; itop < tm.HeightInTiles; itop++ {
@@ -139,7 +137,6 @@ func Run(tilemap Tilemap, chunkHeight, chunkWidth int) ([]Tilemap, error) {
 
 			objects := []Object{}
 			for _, object := range layer.Objects {
-
 				tileX := int(object.X / float64(tm.TileWidth))
 				tileY := int(object.Y / float64(tm.TileHeight))
 				if tileX >= left && tileX < left+chunkWidth && tileY >= top && tileY < top+chunkHeight {
